@@ -73,7 +73,8 @@ public class MainActivity extends AppCompatActivity
             Intent i = new Intent(this, FotoNN.class);
             startActivity(i);
         } else if (id == R.id.emotions_api) {
-
+            Intent i = new Intent(this, DetectFace.class);
+            startActivity(i);
         } else if (id == R.id.get_text) {
 
         }

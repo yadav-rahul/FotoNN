@@ -86,7 +86,6 @@ public class FotoNN extends AppCompatActivity {
 
             Thread th = new Thread(new Runnable() {
                 public void run() {
-
                     try {
                         final String imageName = ImageManager.UploadImage(imageStream, imageLength);
                         handler.post(new Runnable() {

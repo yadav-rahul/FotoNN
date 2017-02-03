@@ -3,6 +3,8 @@
     package="com.cfd.rahul.fotonn">
 
     <uses-permission android:name="android.permission.INTERNET" />
+    <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
+    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
 
     <application
         android:allowBackup="true"
@@ -21,7 +23,8 @@
             </intent-filter>
         </activity>
         <activity android:name=".FotoNN" />
-        <activity android:name=".ImageActivity"></activity>
+        <activity android:name=".ImageActivity" />
+        <activity android:name=".DetectFace"></activity>
     </application>
 
 </manifest>
