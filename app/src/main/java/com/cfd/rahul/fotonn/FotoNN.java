@@ -1,5 +1,6 @@
 package com.cfd.rahul.fotonn;
 
+import android.app.ProgressDialog;
 import android.content.Intent;
 import android.net.Uri;
 import android.os.AsyncTask;
@@ -21,17 +22,17 @@ import java.io.InputStream;
 public class FotoNN extends AppCompatActivity {
 
     private static final int SELECT_IMAGE = 100;
-    private static String url = "http://11204fbc.ngrok.io/vis.json";
     //JSON Node Names
     private static final String CAPTION = "caption";
     private static final String ID = "image_id";
-
+    private static String url = "http://11204fbc.ngrok.io/vis.json";
     private ImageView imageView;
     private Uri imageUri;
     private int imageLength;
     private Button uploadImageButton;
     private ImageManager imageManager;
     private TextView imageText;
+    private  ProgressDialog progress;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -58,6 +59,7 @@ public class FotoNN extends AppCompatActivity {
         this.imageView = (ImageView) findViewById(R.id.imageView);
         this.imageText = (TextView) findViewById(R.id.imageText);
         imageManager = new ImageManager(this);
+        progress = new ProgressDialog(this);
     }
 
     private void ListImages() {
@@ -74,6 +76,9 @@ public class FotoNN extends AppCompatActivity {
 
     private void UploadImage() {
         try {
+            progress.setCancelable(false);
+            progress.setMessage("Uploading Image");
+            progress.show();
             final InputStream imageStream = getContentResolver().openInputStream(this.imageUri);
             final int imageLength = imageStream.available();
 
@@ -83,20 +88,23 @@ public class FotoNN extends AppCompatActivity {
                 public void run() {
 
                     try {
-
                         final String imageName = ImageManager.UploadImage(imageStream, imageLength);
-
                         handler.post(new Runnable() {
-
                             public void run() {
-                                Toast.makeText(getApplicationContext(), "Image Uploaded Successfully. Name = " + imageName, Toast.LENGTH_SHORT).show();
-                                new GetContacts().execute();
+                                progress.setMessage("Processing Image. Please wait for 7 seconds.");
+                                Handler handler = new Handler();
+                                handler.postDelayed(new Runnable() {
+                                    public void run() {
+                                        new GetContacts().execute();
+                                    }
+                                }, 7000);
                             }
                         });
                     } catch (Exception ex) {
                         final String exceptionMessage = ex.getMessage();
                         handler.post(new Runnable() {
                             public void run() {
+                                progress.dismiss();
                                 Toast.makeText(getApplicationContext(), exceptionMessage, Toast.LENGTH_SHORT).show();
                             }
                         });
@@ -105,7 +113,7 @@ public class FotoNN extends AppCompatActivity {
             });
             th.start();
         } catch (Exception ex) {
-
+            progress.dismiss();
             Toast.makeText(this, ex.getMessage(), Toast.LENGTH_SHORT).show();
         }
     }
@@ -151,6 +159,7 @@ public class FotoNN extends AppCompatActivity {
                     runOnUiThread(new Runnable() {
                         @Override
                         public void run() {
+                            progress.dismiss();
                             imageText.setText(caption);
                         }
                     });
@@ -160,6 +169,7 @@ public class FotoNN extends AppCompatActivity {
                     runOnUiThread(new Runnable() {
                         @Override
                         public void run() {
+                            progress.dismiss();
                             Toast.makeText(getApplicationContext(),
                                     "Json parsing error: " + e.getMessage(),
                                     Toast.LENGTH_LONG)
@@ -172,6 +182,7 @@ public class FotoNN extends AppCompatActivity {
                 runOnUiThread(new Runnable() {
                     @Override
                     public void run() {
+                        progress.dismiss();
                         Toast.makeText(getApplicationContext(),
                                 "Couldn't get json from server. Check LogCat for possible errors!",
                                 Toast.LENGTH_LONG)
