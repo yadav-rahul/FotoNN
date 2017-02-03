@@ -15,7 +15,7 @@
 *----------------------------------------------------------------------------------
 **/
 
-package com.microsoft.photouploader;
+package com.cfd.rahul.fotonn;
 
 import android.app.ListActivity;
 import android.content.Intent;

@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <group android:checkableBehavior="single">
+        <item
+            android:id="@+id/foton_it"
+            android:title="FotoNN It" />
+        <item
+            android:id="@+id/emotions_api"
+            android:title="Emotions API" />
+        <item
+            android:id="@+id/get_text"
+            android:title="Get Text" />
+    </group>
+
+
+</menu>

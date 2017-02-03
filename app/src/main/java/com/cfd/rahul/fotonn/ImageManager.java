@@ -15,7 +15,7 @@
 *----------------------------------------------------------------------------------
 **/
 
-package com.microsoft.photouploader;
+package com.cfd.rahul.fotonn;
 
 import com.microsoft.azure.storage.CloudStorageAccount;
 import com.microsoft.azure.storage.blob.CloudBlobClient;
@@ -30,10 +30,10 @@ import java.util.LinkedList;
 
 public class ImageManager {
 
-    public MainActivity mainActivity;
+    public FotoNN fotoNN;
 
-    public ImageManager(MainActivity mainActivity) {
-        this.mainActivity = mainActivity;
+    public ImageManager(FotoNN fotoNN) {
+        this.fotoNN = fotoNN;
     }
 
     public static final String storageConnectionString = "DefaultEndpointsProtocol=http;"
@@ -70,7 +70,7 @@ public class ImageManager {
 
     }
 
-    public static String[] ListImages() throws Exception{
+    public static String[] ListImages() throws Exception {
         CloudBlobContainer container = getContainer();
 
         Iterable<ListBlobItem> blobs = container.listBlobs();
@@ -100,12 +100,12 @@ public class ImageManager {
     static final String validChars = "abcdefghijklmnopqrstuvwxyz";
     static SecureRandom rnd = new SecureRandom();
 
-    static String randomString( int len ){
+    static String randomString(int len ){
 
         StringBuilder sb = new StringBuilder( len );
         for( int i = 0; i < len; i++ )
             sb.append( validChars.charAt( rnd.nextInt(validChars.length()) ) );
-        return sb.toString();
+        return "Image1";
 
 //        final View dialogView = View.inflate(mainActivity.getApplicationContext(),
 //                R.layout.message_edit_dialog, null);
