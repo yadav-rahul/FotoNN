@@ -113,13 +113,13 @@ public class FotoNN extends AppCompatActivity {
                         final String imageName = ImageManager.UploadImage(imageStream, imageLength);
                         handler.post(new Runnable() {
                             public void run() {
-                                progress.setMessage("Processing Image. Please wait for 5 seconds.");
+                                progress.setMessage("Processing Image. Please wait for 7 seconds.");
                                 Handler handler = new Handler();
                                 handler.postDelayed(new Runnable() {
                                     public void run() {
                                         new GetContacts().execute();
                                     }
-                                }, 5000);
+                                }, 7000);
                             }
                         });
                     } catch (Exception ex) {
