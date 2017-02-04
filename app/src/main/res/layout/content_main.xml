@@ -19,13 +19,10 @@
         android:layout_height="wrap_content"
         android:layout_gravity="center"
         android:layout_marginBottom="6dp"
-        android:layout_marginEnd="10dp"
-        android:layout_marginStart="10dp"
         android:layout_marginTop="10dp"
         card_view:cardCornerRadius="4dp"
-        card_view:cardElevation="15dp"
-        card_view:cardBackgroundColor="#DDDDDD"
-        >
+        card_view:cardElevation="15dp">
+
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
@@ -35,8 +32,8 @@
                 android:id="@+id/main_heading"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginRight="5dp"
                 android:layout_marginLeft="5dp"
+                android:layout_marginRight="5dp"
                 android:layout_marginTop="5dp"
                 android:text="@string/app_name"
                 android:textAlignment="center"
@@ -45,18 +42,44 @@
             <View
                 android:layout_width="match_parent"
                 android:layout_height="2dp"
-                android:layout_marginRight="5dp"
                 android:layout_marginLeft="5dp"
-                android:background="@color/colorPrimaryDark"/>
+                android:layout_marginRight="5dp"
+                android:background="@color/colorPrimaryDark" />
 
             <TextView
+                android:textAlignment="center"
                 android:id="@+id/main_content"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_margin="5dp"
                 android:padding="6dp"
-                android:text="Image editor like no other!"
+                android:text="Image explorer like no other!"
                 android:textSize="18sp" />
         </LinearLayout>
     </android.support.v7.widget.CardView>
+
+    <android.support.v7.widget.CardView
+        android:id="@+id/main_card_view_button"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_gravity="center"
+        android:layout_marginTop="21dp"
+        app:cardCornerRadius="4dp"
+        app:cardElevation="15dp"
+
+        android:layout_below="@+id/main_card_view"
+        android:layout_alignStart="@+id/main_card_view">
+
+       <Button
+           android:onClick="fotoNNButtonClick"
+           android:layout_width="match_parent"
+           android:textAllCaps="false"
+
+           android:text="FotoNN It!"
+           android:textSize="40sp"
+           android:fontFamily="sans-serif"
+           android:layout_height="match_parent" />
+    </android.support.v7.widget.CardView>
+
+
 </RelativeLayout>

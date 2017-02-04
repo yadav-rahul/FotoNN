@@ -6,7 +6,9 @@ import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Handler;
+import android.speech.tts.TextToSpeech;
 import android.support.v7.app.AppCompatActivity;
+import android.support.v7.widget.Toolbar;
 import android.view.View;
 import android.widget.Button;
 import android.widget.ImageView;
@@ -18,6 +20,7 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.io.InputStream;
+import java.util.Locale;
 
 public class FotoNN extends AppCompatActivity {
 
@@ -25,24 +28,35 @@ public class FotoNN extends AppCompatActivity {
     //JSON Node Names
     private static final String CAPTION = "caption";
     private static final String ID = "image_id";
-    private static String url = "http://11204fbc.ngrok.io/vis.json";
+    private static String url = "http://21ff157d.ngrok.io/vis.json";
     private ImageView imageView;
     private Uri imageUri;
     private int imageLength;
     private Button uploadImageButton;
     private ImageManager imageManager;
     private TextView imageText;
-    private  ProgressDialog progress;
+    private ProgressDialog progress;
+    private TextToSpeech t1;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_foto_nn);
+        this.imageText = (TextView) findViewById(R.id.imageText);
 
+        t1 = new TextToSpeech(getApplicationContext(), new TextToSpeech.OnInitListener() {
+            @Override
+            public void onInit(int status) {
+                if (status != TextToSpeech.ERROR) {
+                    t1.setLanguage(Locale.US);
+                }
+            }
+        });
         Button selectImageButton = (Button) findViewById(R.id.Select);
         selectImageButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                imageText.setText("Please upload image to get results!");
                 SelectImageFromGallery();
             }
         });
@@ -57,9 +71,18 @@ public class FotoNN extends AppCompatActivity {
         this.uploadImageButton.setEnabled(false);
 
         this.imageView = (ImageView) findViewById(R.id.imageView);
-        this.imageText = (TextView) findViewById(R.id.imageText);
         imageManager = new ImageManager(this);
         progress = new ProgressDialog(this);
+
+        // toolbar
+        Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
+        setSupportActionBar(toolbar);
+
+        // add back arrow to toolbar
+        if (getSupportActionBar() != null){
+            getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+            getSupportActionBar().setDisplayShowHomeEnabled(true);
+        }
     }
 
     private void ListImages() {
@@ -90,13 +113,13 @@ public class FotoNN extends AppCompatActivity {
                         final String imageName = ImageManager.UploadImage(imageStream, imageLength);
                         handler.post(new Runnable() {
                             public void run() {
-                                progress.setMessage("Processing Image. Please wait for 7 seconds.");
+                                progress.setMessage("Processing Image. Please wait for 10 seconds.");
                                 Handler handler = new Handler();
                                 handler.postDelayed(new Runnable() {
                                     public void run() {
                                         new GetContacts().execute();
                                     }
-                                }, 7000);
+                                }, 10000);
                             }
                         });
                     } catch (Exception ex) {
@@ -135,6 +158,15 @@ public class FotoNN extends AppCompatActivity {
         return (MainActivity) this.getApplicationContext();
     }
 
+    @Override
+    protected void onDestroy() {
+        if (t1 != null) {
+            t1.stop();
+            t1.shutdown();
+        }
+        super.onDestroy();
+    }
+
     private class GetContacts extends AsyncTask<Void, Void, Void> {
 
         @Override
@@ -159,6 +191,9 @@ public class FotoNN extends AppCompatActivity {
                         @Override
                         public void run() {
                             progress.dismiss();
+
+                            t1.speak("Content which best describes this picture is, "
+                                    + caption, TextToSpeech.QUEUE_FLUSH, null);
                             imageText.setText(caption);
                         }
                     });
@@ -183,7 +218,7 @@ public class FotoNN extends AppCompatActivity {
                     public void run() {
                         progress.dismiss();
                         Toast.makeText(getApplicationContext(),
-                                "Couldn't get json from server. Check LogCat for possible errors!",
+                                "Server down! Please try after some time.",
                                 Toast.LENGTH_LONG)
                                 .show();
                     }
