@@ -63,6 +63,8 @@ public class MainActivity extends AppCompatActivity
 
         //noinspection SimplifiableIfStatement
         if (id == R.id.action_settings) {
+            //TODO Add about us section here
+
             return true;
         }
 

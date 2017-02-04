@@ -29,9 +29,11 @@
             android:theme="@style/AppTheme.NoActionBar" />
         <activity
             android:name=".ImageActivity"
+            android:parentActivityName=".MainActivity"
             android:theme="@style/AppTheme.NoActionBar" />
         <activity
             android:name=".DetectFace"
+            android:parentActivityName=".MainActivity"
             android:theme="@style/AppTheme.NoActionBar" />
     </application>
 
