@@ -28,7 +28,7 @@ public class FotoNN extends AppCompatActivity {
     //JSON Node Names
     private static final String CAPTION = "caption";
     private static final String ID = "image_id";
-    private static String url = "http://21ff157d.ngrok.io/vis.json";
+    private static String url = "http://ea7de590.ngrok.io/vis.json";
     private ImageView imageView;
     private Uri imageUri;
     private int imageLength;
@@ -113,13 +113,13 @@ public class FotoNN extends AppCompatActivity {
                         final String imageName = ImageManager.UploadImage(imageStream, imageLength);
                         handler.post(new Runnable() {
                             public void run() {
-                                progress.setMessage("Processing Image. Please wait for 10 seconds.");
+                                progress.setMessage("Processing Image. Please wait for 5 seconds.");
                                 Handler handler = new Handler();
                                 handler.postDelayed(new Runnable() {
                                     public void run() {
                                         new GetContacts().execute();
                                     }
-                                }, 10000);
+                                }, 5000);
                             }
                         });
                     } catch (Exception ex) {
