@@ -19,6 +19,7 @@ import android.os.Bundle;
 import android.os.Environment;
 import android.provider.MediaStore;
 import android.provider.Settings;
+import android.speech.tts.TextToSpeech;
 import android.support.v4.app.ActivityCompat;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
@@ -40,6 +41,7 @@ import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.text.SimpleDateFormat;
+import java.util.Locale;
 
 public class DetectFace extends AppCompatActivity {
 
@@ -60,6 +62,7 @@ public class DetectFace extends AppCompatActivity {
     private TextView textView;
     private String mCurrentPhotoPath;
     private Uri mCapturedImageURI;
+    private TextToSpeech t1;
 
     private static Bitmap drawFaceRectanglesOnBitmap(Bitmap originalBitmap, Face[] faces) {
         Log.d("Detect Frame", "Started");
@@ -114,6 +117,13 @@ public class DetectFace extends AppCompatActivity {
         context.startActivity(i);
     }
 
+    private void selectImage() {
+        textView.setText("Please upload image to find number of faces!");
+        Intent gallIntent = new Intent(Intent.ACTION_GET_CONTENT);
+        gallIntent.setType("image/*");
+        startActivityForResult(Intent.createChooser(gallIntent, "Select Picture"), PICK_IMAGE);
+    }
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -123,10 +133,7 @@ public class DetectFace extends AppCompatActivity {
         button1.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                textView.setText("Please upload image to find number of faces!");
-                Intent gallIntent = new Intent(Intent.ACTION_GET_CONTENT);
-                gallIntent.setType("image/*");
-                startActivityForResult(Intent.createChooser(gallIntent, "Select Picture"), PICK_IMAGE);
+                selectImage();
             }
         });
 //        Button button2 = (Button) findViewById(R.id.button2);
@@ -163,11 +170,20 @@ public class DetectFace extends AppCompatActivity {
         setSupportActionBar(toolbar);
 
         // add back arrow to toolbar
-        if (getSupportActionBar() != null){
+        if (getSupportActionBar() != null) {
             getSupportActionBar().setDisplayHomeAsUpEnabled(true);
             getSupportActionBar().setDisplayShowHomeEnabled(true);
         }
         detectionProgressDialog = new ProgressDialog(this);
+        selectImage();
+        t1 = new TextToSpeech(getApplicationContext(), new TextToSpeech.OnInitListener() {
+            @Override
+            public void onInit(int status) {
+                if (status != TextToSpeech.ERROR) {
+                    t1.setLanguage(Locale.US);
+                }
+            }
+        });
     }
 
     private void showAlert() {
@@ -338,6 +354,7 @@ public class DetectFace extends AppCompatActivity {
                     protected Face[] doInBackground(InputStream... params) {
                         try {
                             publishProgress("Detecting...");
+                            t1.speak("Detecting faces. Please wait for some time.", TextToSpeech.QUEUE_FLUSH, null);
                             Face[] result = faceServiceClient.detect(
                                     params[0],
                                     true,         // returnFaceId
@@ -345,6 +362,7 @@ public class DetectFace extends AppCompatActivity {
                                     null           // returnFaceAttributes: a string like "age, gender"
                             );
                             if (result == null) {
+
                                 publishProgress("Detection Finished. Nothing detected");
                                 return null;
                             }
@@ -380,9 +398,12 @@ public class DetectFace extends AppCompatActivity {
                             @Override
                             public void run() {
                                 if (result == null) {
+                                    t1.speak("Detecting finished. No face found!", TextToSpeech.QUEUE_FLUSH, null);
                                     textView.setText("Number of face detected : " + 0);
-                                } else
+                                } else {
+                                    t1.speak("Detecting finished. " + result.length + " face found!", TextToSpeech.QUEUE_FLUSH, null);
                                     textView.setText("Number of face detected : " + result.length);
+                                }
                             }
                         });
                         if (result == null) return;
@@ -395,4 +416,12 @@ public class DetectFace extends AppCompatActivity {
         detectTask.execute(inputStream);
     }
 
+    @Override
+    protected void onDestroy() {
+        if (t1 != null) {
+            t1.stop();
+            t1.shutdown();
+        }
+        super.onDestroy();
+    }
 }
