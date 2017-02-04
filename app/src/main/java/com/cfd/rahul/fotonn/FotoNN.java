@@ -83,6 +83,7 @@ public class FotoNN extends AppCompatActivity {
             getSupportActionBar().setDisplayHomeAsUpEnabled(true);
             getSupportActionBar().setDisplayShowHomeEnabled(true);
         }
+        SelectImageFromGallery();
     }
 
     private void ListImages() {
@@ -98,6 +99,7 @@ public class FotoNN extends AppCompatActivity {
     }
 
     private void UploadImage() {
+        t1.speak("Uploading Image", TextToSpeech.QUEUE_FLUSH, null);
         try {
             progress.setCancelable(false);
             progress.setMessage("Uploading Image");
@@ -113,6 +115,7 @@ public class FotoNN extends AppCompatActivity {
                         final String imageName = ImageManager.UploadImage(imageStream, imageLength);
                         handler.post(new Runnable() {
                             public void run() {
+                                t1.speak("Image uploaded successfully. Now please wait for 7 seconds.", TextToSpeech.QUEUE_FLUSH, null);
                                 progress.setMessage("Processing Image. Please wait for 7 seconds.");
                                 Handler handler = new Handler();
                                 handler.postDelayed(new Runnable() {
@@ -123,6 +126,7 @@ public class FotoNN extends AppCompatActivity {
                             }
                         });
                     } catch (Exception ex) {
+                        t1.speak("Server error. Please try again.", TextToSpeech.QUEUE_FLUSH, null);
                         final String exceptionMessage = ex.getMessage();
                         handler.post(new Runnable() {
                             public void run() {
@@ -135,6 +139,7 @@ public class FotoNN extends AppCompatActivity {
             });
             th.start();
         } catch (Exception ex) {
+            t1.speak("Server error. Please try again.", TextToSpeech.QUEUE_FLUSH, null);
             progress.dismiss();
             Toast.makeText(this, ex.getMessage(), Toast.LENGTH_SHORT).show();
         }
@@ -150,6 +155,7 @@ public class FotoNN extends AppCompatActivity {
                     this.imageUri = imageReturnedIntent.getData();
                     this.imageView.setImageURI(this.imageUri);
                     this.uploadImageButton.setEnabled(true);
+                    UploadImage();
                 }
         }
     }
