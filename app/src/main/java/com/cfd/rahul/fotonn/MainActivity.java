@@ -13,9 +13,6 @@ import android.support.v7.widget.Toolbar;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
-import android.widget.ArrayAdapter;
-import android.widget.Button;
-import android.widget.ListView;
 
 import java.util.ArrayList;
 import java.util.Locale;
@@ -23,8 +20,8 @@ import java.util.Locale;
 public class MainActivity extends AppCompatActivity
         implements NavigationView.OnNavigationItemSelectedListener {
 
-    private TextToSpeech t1;
     public static final int VOICE_RECOGNITION_REQUEST_CODE = 1;
+    private TextToSpeech t1;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -69,16 +66,36 @@ public class MainActivity extends AppCompatActivity
                     || matches.contains("photo on it") || matches.contains("photon net")) {
                 t1.speak("Operation Successful. Now please select an image", TextToSpeech.QUEUE_FLUSH, null);
                 Intent i = new Intent(this, FotoNN.class);
+                i.putExtra("flag", true);
+                i.putExtra("camera", false);
                 startActivity(i);
             } else if (matches.contains("emotion") || matches.contains("emotions") || matches.contains("Emotion API") ||
-                    matches.contains("detect face") || matches.contains("show face")|| matches.contains("amazon API")) {
+                    matches.contains("detect face") || matches.contains("show face") || matches.contains("amazon API")) {
                 t1.speak("Operation Successful. Now please select an image", TextToSpeech.QUEUE_FLUSH, null);
                 Intent i = new Intent(this, DetectFace.class);
+                i.putExtra("flag", true);
+                i.putExtra("camera", false);
+                startActivity(i);
+            } else if (matches.contains("emotion camera") || matches.contains("emotions camera") ||
+                    matches.contains("Emotion API camera") ||
+                    matches.contains("detect face  camera") || matches.contains("show face  camera") ||
+                    matches.contains("amazon API  camera")) {
+                t1.speak("Operation Successful. Opening Camera.", TextToSpeech.QUEUE_FLUSH, null);
+                Intent i = new Intent(this, DetectFace.class);
+                i.putExtra("flag", true);
+                i.putExtra("camera", true);
+                startActivity(i);
+            } else if (matches.contains("camera") || matches.contains("open camera") ||
+                    matches.contains("photon camera") || matches.contains("open camera")) {
+                t1.speak("Operation Successful. Opening camera.", TextToSpeech.QUEUE_FLUSH, null);
+                Intent i = new Intent(this, FotoNN.class);
+                i.putExtra("flag", true);
+                i.putExtra("camera", true);
                 startActivity(i);
             } else if (matches.contains("information")) {
                 informationMenu();
             } else {
-                t1.speak("Operation UnSuccessful ", TextToSpeech.QUEUE_FLUSH, null);
+                t1.speak("Operation UnSuccessful. Please try again!", TextToSpeech.QUEUE_FLUSH, null);
             }
         }
     }
@@ -134,9 +151,12 @@ public class MainActivity extends AppCompatActivity
 
         if (id == R.id.foton_it) {
             Intent i = new Intent(this, FotoNN.class);
+            i.putExtra("flag", false);
+            i.putExtra("camera", false);
             startActivity(i);
         } else if (id == R.id.emotions_api) {
             Intent i = new Intent(this, DetectFace.class);
+            i.putExtra("flag", false);
             startActivity(i);
         } else if (id == R.id.get_text) {
 

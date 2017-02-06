@@ -47,9 +47,12 @@
         <ImageView
             android:id="@+id/imageView1"
             android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:layout_below="@+id/imageText"
+            android:layout_height="wrap_content"
+            android:layout_below="@+id/number_face_detected"
             android:layout_centerHorizontal="true"
+            android:layout_centerVertical="true"
+            android:layout_marginBottom="10dp"
+            android:layout_marginTop="10dp"
             app:srcCompat="@android:drawable/ic_menu_gallery" />
     </RelativeLayout>
 
@@ -69,8 +72,16 @@
             android:layout_margin="0dp"
             android:layout_weight="1"
             android:padding="0dp"
-            android:text="Browse" />
+            android:text="Select Image" />
 
+        <Button
+            android:id="@+id/upload_emotion_image"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_margin="0dp"
+            android:layout_weight="1"
+            android:padding="0dp"
+            android:text="Capture Image" />
     </LinearLayout>
 
 </RelativeLayout>

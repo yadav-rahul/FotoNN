@@ -21,10 +21,13 @@ import android.provider.MediaStore;
 import android.provider.Settings;
 import android.speech.tts.TextToSpeech;
 import android.support.v4.app.ActivityCompat;
+import android.support.v4.content.FileProvider;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
+import android.view.Menu;
+import android.view.MenuItem;
 import android.view.View;
 import android.widget.Button;
 import android.widget.ImageView;
@@ -41,6 +44,7 @@ import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.text.SimpleDateFormat;
+import java.util.Date;
 import java.util.Locale;
 
 public class DetectFace extends AppCompatActivity {
@@ -54,6 +58,8 @@ public class DetectFace extends AppCompatActivity {
                     "AccountKey=WAz24m3agTsSDLwZ3/bWSpUikiDu8n2w0eiYPVQQpp/2aR9wwaDieNAH+AYEdFHljka0a4N/Fm3Ggl6liFk1fA==";
     final static int CAPTURE_IMAGE_ACTIVITY_REQUEST_CODE = 3;
     private static final int REQUEST_TAKE_PHOTO = 2;
+    private static final int REQUEST_IMAGE_CAPTURE = 101;
+
     private final int PICK_IMAGE = 1;
     Uri imageUri = null;
     private ProgressDialog detectionProgressDialog;
@@ -63,6 +69,9 @@ public class DetectFace extends AppCompatActivity {
     private String mCurrentPhotoPath;
     private Uri mCapturedImageURI;
     private TextToSpeech t1;
+    private File photoFile;
+    private Uri photoURI;
+    private Button cameraButton;
 
     private static Bitmap drawFaceRectanglesOnBitmap(Bitmap originalBitmap, Face[] faces) {
         Log.d("Detect Frame", "Started");
@@ -129,6 +138,7 @@ public class DetectFace extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_detect_face);
         Button button1 = (Button) findViewById(R.id.button1);
+        cameraButton = (Button) findViewById(R.id.upload_emotion_image);
         textView = (TextView) findViewById(R.id.number_face_detected);
         button1.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -136,35 +146,13 @@ public class DetectFace extends AppCompatActivity {
                 selectImage();
             }
         });
-//        Button button2 = (Button) findViewById(R.id.button2);
-//        button2.setOnClickListener(new View.OnClickListener() {
-//            @Override
-//            public void onClick(View v) {
-//                if (ContextCompat.checkSelfPermission(DetectFace.this, Manifest.permission.CAMERA) != PackageManager.PERMISSION_GRANTED) {
-//                    if (getFromPref(DetectFace.this, ALLOW_KEY)) {
-//                        showSettingsAlert();
-//                    } else if (ContextCompat.checkSelfPermission(DetectFace.this,
-//                            Manifest.permission.CAMERA)
-//
-//                            != PackageManager.PERMISSION_GRANTED) {
-//
-//                        // Should we show an explanation?
-//                        if (ActivityCompat.shouldShowRequestPermissionRationale(DetectFace.this,
-//                                Manifest.permission.CAMERA)) {
-//                            showAlert();
-//                        } else {
-//                            // No explanation needed, we can request the permission.
-//                            ActivityCompat.requestPermissions(DetectFace.this,
-//                                    new String[]{Manifest.permission.CAMERA},
-//                                    REQUEST_TAKE_PHOTO);
-//                        }
-//                    }
-//                } else {
-//                    openCamera();
-//                }
-//            }
-//        });
 
+        cameraButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                openCameraIntent();
+            }
+        });
         // toolbar
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
@@ -175,7 +163,6 @@ public class DetectFace extends AppCompatActivity {
             getSupportActionBar().setDisplayShowHomeEnabled(true);
         }
         detectionProgressDialog = new ProgressDialog(this);
-        selectImage();
         t1 = new TextToSpeech(getApplicationContext(), new TextToSpeech.OnInitListener() {
             @Override
             public void onInit(int status) {
@@ -184,6 +171,56 @@ public class DetectFace extends AppCompatActivity {
                 }
             }
         });
+
+        Bundle bundle = getIntent().getExtras();
+        boolean param = bundle.getBoolean("flag");
+        boolean paramCamera = bundle.getBoolean("camera");
+
+        if (param)
+            if (paramCamera)
+                openCameraIntent();
+            else
+                selectImage();
+
+    }
+
+
+    private void openCameraIntent() {
+        Intent takePictureIntent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
+        // Ensure that there's a camera activity to handle the intent
+        if (takePictureIntent.resolveActivity(getPackageManager()) != null) {
+            // Create the File where the photo should go
+            photoFile = null;
+            try {
+                photoFile = createImageFile();
+            } catch (IOException ex) {
+                // Error occurred while creating the File
+            }
+            // Continue only if the File was successfully created
+            if (photoFile != null) {
+                photoURI = FileProvider.getUriForFile(DetectFace.this,
+                        "com.example.android.fileprovider",
+                        photoFile);
+                takePictureIntent.putExtra(MediaStore.EXTRA_OUTPUT, photoURI);
+                startActivityForResult(takePictureIntent, REQUEST_IMAGE_CAPTURE);
+            }
+        }
+    }
+
+    private File createImageFile() throws IOException {
+        // Create an image file name
+        String timeStamp = new SimpleDateFormat("yyyyMMdd_HHmmss").format(new Date());
+        String imageFileName = "JPEG_" + timeStamp + "_";
+        File storageDir = getExternalFilesDir(Environment.DIRECTORY_PICTURES);
+        File image = File.createTempFile(
+                imageFileName,  /* prefix */
+                ".jpg",         /* suffix */
+                storageDir      /* directory */
+        );
+
+        // Save a file: path for use with ACTION_VIEW intents
+        mCurrentPhotoPath = image.getAbsolutePath();
+        return image;
     }
 
     private void showAlert() {
@@ -334,11 +371,19 @@ public class DetectFace extends AppCompatActivity {
             } catch (IOException e) {
                 e.printStackTrace();
             }
-        } else if (requestCode == CAPTURE_IMAGE_ACTIVITY_REQUEST_CODE && resultCode == RESULT_OK) {
-            Bitmap bitmap = (Bitmap) data.getExtras().get("data");
+        } else if (requestCode == REQUEST_IMAGE_CAPTURE && resultCode == RESULT_OK) {
             ImageView imageView = (ImageView) findViewById(R.id.imageView1);
-            imageView.setImageBitmap(bitmap);
-            detectAndFrame(bitmap);
+            imageView.setImageURI(photoURI);
+
+            try {
+                Bitmap bitmap = MediaStore.Images.Media.getBitmap(this.getContentResolver(), photoURI);
+                detectAndFrame(bitmap);
+            } catch (IOException e) {
+                t1.speak("Fatal error occurred! Please try again..", TextToSpeech.QUEUE_FLUSH, null);
+                e.printStackTrace();
+
+            }
+
         }
     }
 
@@ -423,5 +468,28 @@ public class DetectFace extends AppCompatActivity {
             t1.shutdown();
         }
         super.onDestroy();
+    }
+
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        // Inflate the menu; this adds items to the action bar if it is present.
+        getMenuInflater().inflate(R.menu.main_list, menu);
+        return true;
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        // Handle action bar item clicks here. The action bar will
+        // automatically handle clicks on the Home/Up button, so long
+        // as you specify a parent activity in AndroidManifest.xml.
+        int id = item.getItemId();
+
+        //noinspection SimplifiableIfStatement
+        if (id == R.id.action_settings) {
+            //open list of images classified into differnt categories
+            return true;
+        }
+
+        return super.onOptionsItemSelected(item);
     }
 }
