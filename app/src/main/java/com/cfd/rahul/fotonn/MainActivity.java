@@ -13,6 +13,7 @@ import android.support.v7.widget.Toolbar;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.widget.Toast;
 
 import java.util.ArrayList;
 import java.util.Locale;
@@ -136,7 +137,7 @@ public class MainActivity extends AppCompatActivity
         //noinspection SimplifiableIfStatement
         if (id == R.id.action_settings) {
             //TODO Add about us section here
-
+            startActivity(new Intent(this, AboutUs.class));
             return true;
         }
 
@@ -159,7 +160,7 @@ public class MainActivity extends AppCompatActivity
             i.putExtra("flag", false);
             startActivity(i);
         } else if (id == R.id.get_text) {
-
+            Toast.makeText(this, "Working on it...\nTo be implemented soon.", Toast.LENGTH_SHORT).show();
         }
 
         DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
