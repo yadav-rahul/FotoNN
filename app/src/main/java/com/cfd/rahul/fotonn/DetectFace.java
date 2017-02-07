@@ -1,8 +1,7 @@
 package com.cfd.rahul.fotonn;
 
 import android.Manifest;
-import android.app.Activity;
-import android.app.ProgressDialog;
+import android.app.*;
 import android.content.ContentValues;
 import android.content.Context;
 import android.content.DialogInterface;
@@ -487,6 +486,8 @@ public class DetectFace extends AppCompatActivity {
         //noinspection SimplifiableIfStatement
         if (id == R.id.action_settings) {
             //open list of images classified into differnt categories
+            Intent i = new Intent(this, ListActivity.class);
+            startActivity(i);
             return true;
         }
 

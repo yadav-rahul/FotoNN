@@ -153,11 +153,6 @@ public class FotoNN extends AppCompatActivity {
     }
 
 
-    private void ListImages() {
-        Intent intent = new Intent(getBaseContext(), ListImagesActivity.class);
-        startActivity(intent);
-    }
-
     private void SelectImageFromGallery() {
         Intent intent = new Intent();
         intent.setType("image/*");
