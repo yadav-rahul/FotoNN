@@ -54,7 +54,7 @@ public class Splash extends Activity {
                 startActivity(i);
                 finish();
             }
-        }, 6600);
+        }, 7000);
     }
 
     @Override

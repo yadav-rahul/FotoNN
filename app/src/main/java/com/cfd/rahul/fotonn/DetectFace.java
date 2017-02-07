@@ -69,8 +69,10 @@ public class DetectFace extends AppCompatActivity {
     private Uri mCapturedImageURI;
     private TextToSpeech t1;
     private File photoFile;
-    private Uri photoURI;
+    private Uri cameraPhotoURI, filePhotoURI;
     private Button cameraButton;
+    private ListActivity listActivity;
+    private DBManager dbManager;
 
     private static Bitmap drawFaceRectanglesOnBitmap(Bitmap originalBitmap, Face[] faces) {
         Log.d("Detect Frame", "Started");
@@ -175,6 +177,8 @@ public class DetectFace extends AppCompatActivity {
         boolean param = bundle.getBoolean("flag");
         boolean paramCamera = bundle.getBoolean("camera");
 
+        dbManager = new DBManager(this);
+        dbManager.open();
         if (param)
             if (paramCamera)
                 openCameraIntent();
@@ -197,10 +201,10 @@ public class DetectFace extends AppCompatActivity {
             }
             // Continue only if the File was successfully created
             if (photoFile != null) {
-                photoURI = FileProvider.getUriForFile(DetectFace.this,
+                cameraPhotoURI = FileProvider.getUriForFile(DetectFace.this,
                         "com.example.android.fileprovider",
                         photoFile);
-                takePictureIntent.putExtra(MediaStore.EXTRA_OUTPUT, photoURI);
+                takePictureIntent.putExtra(MediaStore.EXTRA_OUTPUT, cameraPhotoURI);
                 startActivityForResult(takePictureIntent, REQUEST_IMAGE_CAPTURE);
             }
         }
@@ -361,9 +365,10 @@ public class DetectFace extends AppCompatActivity {
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
         if (requestCode == PICK_IMAGE && resultCode == RESULT_OK && data != null && data.getData() != null) {
-            Uri uri = data.getData();
+            filePhotoURI = data.getData();
             try {
-                Bitmap bitmap = MediaStore.Images.Media.getBitmap(getContentResolver(), uri);
+
+                Bitmap bitmap = MediaStore.Images.Media.getBitmap(getContentResolver(), filePhotoURI);
                 ImageView imageView = (ImageView) findViewById(R.id.imageView1);
                 imageView.setImageBitmap(bitmap);
                 detectAndFrame(bitmap);
@@ -372,10 +377,9 @@ public class DetectFace extends AppCompatActivity {
             }
         } else if (requestCode == REQUEST_IMAGE_CAPTURE && resultCode == RESULT_OK) {
             ImageView imageView = (ImageView) findViewById(R.id.imageView1);
-            imageView.setImageURI(photoURI);
-
+            imageView.setImageURI(cameraPhotoURI);
             try {
-                Bitmap bitmap = MediaStore.Images.Media.getBitmap(this.getContentResolver(), photoURI);
+                Bitmap bitmap = MediaStore.Images.Media.getBitmap(this.getContentResolver(), cameraPhotoURI);
                 detectAndFrame(bitmap);
             } catch (IOException e) {
                 t1.speak("Fatal error occurred! Please try again..", TextToSpeech.QUEUE_FLUSH, null);
@@ -442,9 +446,21 @@ public class DetectFace extends AppCompatActivity {
                             @Override
                             public void run() {
                                 if (result == null) {
+//                                    ListActivity.setNoFaceArray("Hello");
+                                    if (cameraPhotoURI != null) {
+                                        dbManager.insert(String.valueOf(cameraPhotoURI), "No face");
+                                    } else {
+                                        dbManager.insert(String.valueOf(filePhotoURI), "No face");
+                                    }
                                     t1.speak("Detecting finished. No face found!", TextToSpeech.QUEUE_FLUSH, null);
                                     textView.setText("Number of face detected : " + 0);
                                 } else {
+//                                    ListActivity.setNoFaceArray("Not Hello"
+                                    if (cameraPhotoURI != null) {
+                                        dbManager.insert(String.valueOf(cameraPhotoURI), "Face");
+                                    } else {
+                                        dbManager.insert(String.valueOf(filePhotoURI), "Face");
+                                    }
                                     t1.speak("Detecting finished. " + result.length + " face found!", TextToSpeech.QUEUE_FLUSH, null);
                                     textView.setText("Number of face detected : " + result.length);
                                 }
